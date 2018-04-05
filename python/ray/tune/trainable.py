@@ -143,7 +143,7 @@ class Trainable(object):
 
         self._result_logger.on_result(result)
 
-        return result
+        return ray.put(result)
 
     def save(self, checkpoint_dir=None):
         """Saves the current model state to a checkpoint.

@@ -166,9 +166,7 @@ class Trial(object):
                 self.error_file = error_file
             if self.runner:
                 stop_tasks = []
-                stop_tasks.append(self.runner.stop.remote())
-                stop_tasks.append(self.runner.__ray_terminate__.remote(
-                    self.runner._ray_actor_id.id()))
+                stop_tasks.append(self.runner.stop())
                 # TODO(ekl)  seems like wait hangs when killing actors
                 _, unfinished = ray.wait(
                         stop_tasks, num_returns=2, timeout=250)
@@ -210,7 +208,7 @@ class Trial(object):
         """Returns Ray future for one iteration of training."""
 
         assert self.status == Trial.RUNNING, self.status
-        return self.runner.train.remote()
+        return self.runner.train()
 
     def should_stop(self, result):
         """Whether the given result meets this trial's stopping criteria."""
@@ -287,9 +285,9 @@ class Trial(object):
         obj = None
         path = None
         if to_object_store:
-            obj = self.runner.save_to_object.remote()
+            obj = self.runner.save_to_object()
         else:
-            path = ray.get(self.runner.save.remote())
+            path = ray.get(self.runner.save())
         self._checkpoint_path = path
         self._checkpoint_obj = obj
 
@@ -308,7 +306,7 @@ class Trial(object):
             print("Unable to restore - no runner")
         else:
             try:
-                ray.get(self.runner.restore.remote(path))
+                ray.get(self.runner.restore(path))
             except Exception:
                 print("Error restoring runner:", traceback.format_exc())
                 self.status = Trial.ERROR
@@ -320,7 +318,7 @@ class Trial(object):
             print("Unable to restore - no runner")
         else:
             try:
-                ray.get(self.runner.restore_from_object.remote(obj))
+                ray.get(self.runner.restore_from_object(obj))
             except Exception:
                 print("Error restoring runner:", traceback.format_exc())
                 self.status = Trial.ERROR

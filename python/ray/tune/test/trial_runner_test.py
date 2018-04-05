@@ -641,7 +641,7 @@ class TrialRunnerTest(unittest.TestCase):
 
         runner.step()
         self.assertEqual(trials[0].status, Trial.RUNNING)
-        self.assertEqual(ray.get(trials[0].runner.set_info.remote(1)), 1)
+        self.assertEqual(ray.get(trials[0].runner.set_info(1)), 1)
 
         path = trials[0].checkpoint()
         kwargs["restore_path"] = path
@@ -656,7 +656,7 @@ class TrialRunnerTest(unittest.TestCase):
         runner.step()
         self.assertEqual(trials[0].status, Trial.TERMINATED)
         self.assertEqual(trials[1].status, Trial.RUNNING)
-        self.assertEqual(ray.get(trials[1].runner.get_info.remote()), 1)
+        self.assertEqual(ray.get(trials[1].runner.get_info()), 1)
         self.addCleanup(os.remove, path)
 
     def testResultDone(self):
@@ -689,9 +689,9 @@ class TrialRunnerTest(unittest.TestCase):
 
         runner.step()
         self.assertEqual(trials[0].status, Trial.RUNNING)
-        self.assertEqual(ray.get(trials[0].runner.get_info.remote()), None)
+        self.assertEqual(ray.get(trials[0].runner.get_info()), None)
 
-        self.assertEqual(ray.get(trials[0].runner.set_info.remote(1)), 1)
+        self.assertEqual(ray.get(trials[0].runner.set_info(1)), 1)
 
         trials[0].pause()
         self.assertEqual(trials[0].status, Trial.PAUSED)
@@ -701,7 +701,7 @@ class TrialRunnerTest(unittest.TestCase):
 
         runner.step()
         self.assertEqual(trials[0].status, Trial.RUNNING)
-        self.assertEqual(ray.get(trials[0].runner.get_info.remote()), 1)
+        self.assertEqual(ray.get(trials[0].runner.get_info()), 1)
 
         runner.step()
         self.assertEqual(trials[0].status, Trial.TERMINATED)
